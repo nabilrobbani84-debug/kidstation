@@ -22,5 +22,6 @@
         "DB_CONNECTION": "sqlite",
         "DB_DATABASE": "/tmp/database.sqlite",
         "LOG_CHANNEL": "stderr"
-    }
+    },
+    "buildCommand": "npm install && npm run build && mkdir -p public/build && cp -r public/build public/build-asset"
 }
