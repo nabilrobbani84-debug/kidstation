@@ -75,7 +75,7 @@
                         <i class="fa-solid fa-basket-shopping"></i>
                     </div>
                     <div>
-                        <p class="font-bold text-gray-800 text-sm">{{ $transaction->product->name }}</p>
+                        <p class="font-bold text-gray-800 text-sm">{{ $transaction->product ? $transaction->product->name : 'Produk Terhapus' }}</p>
                         <p class="text-xs text-gray-500">{{ $transaction->created_at->format('H:i') }} • Qty: {{ $transaction->quantity }}</p>
                     </div>
                 </div>
