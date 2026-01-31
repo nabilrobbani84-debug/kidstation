@@ -2,7 +2,7 @@
     "version": 2,
     "framework": null,
     "functions": {
-        "api/index.php": { "runtime": "vercel-php@0.7.2" }
+        "api/index.php": { "runtime": "vercel-php@0.6.0" }
     },
     "routes": [
         {
@@ -20,6 +20,7 @@
         "APP_URL": "https://kidstation.vercel.app",
         "APP_KEY": "base64:YOUR_GENERATED_KEY_HERE",
         "DB_CONNECTION": "sqlite",
-        "DB_DATABASE": "/tmp/database.sqlite"
+        "DB_DATABASE": "/tmp/database.sqlite",
+        "LOG_CHANNEL": "stderr"
     }
 }
