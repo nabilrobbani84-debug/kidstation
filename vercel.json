@@ -1,8 +1,9 @@
 {
     "version": 2,
     "framework": null,
+    "outputDirectory": "public/build",
     "functions": {
-        "api/index.php": { "runtime": "vercel-php@0.6.0" }
+        "api/index.php": { "runtime": "vercel-php@0.7.4" }
     },
     "routes": [
         {
@@ -16,13 +17,21 @@
     ],
     "env": {
         "APP_ENV": "production",
-        "APP_DEBUG": "true",
+        "APP_DEBUG": "false",
         "APP_URL": "https://kidstation.vercel.app",
-        "APP_KEY": "base64:YOUR_GENERATED_KEY_HERE",
-        "DB_CONNECTION": "sqlite",
-        "DB_DATABASE": "/tmp/database.sqlite",
-        "LOG_CHANNEL": "stderr"
+        "APP_CONFIG_CACHE": "/tmp/config.php",
+        "APP_EVENTS_CACHE": "/tmp/events.php",
+        "APP_PACKAGES_CACHE": "/tmp/packages.php",
+        "APP_ROUTES_CACHE": "/tmp/routes.php",
+        "APP_SERVICES_CACHE": "/tmp/services.php",
+        "LOG_CHANNEL": "stderr",
+        "LOG_LEVEL": "info",
+        "DB_CONNECTION": "pgsql",
+        "SESSION_DRIVER": "cookie",
+        "CACHE_STORE": "array",
+        "QUEUE_CONNECTION": "sync",
+        "VIEW_COMPILED_PATH": "/tmp/views"
     },
-    "installCommand": "npm install",
-    "buildCommand": "npm run build && mkdir -p public/build && cp -r public/build public/build-asset"
+    "installCommand": "npm ci",
+    "buildCommand": "npm run build"
 }
