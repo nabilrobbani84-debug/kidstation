@@ -12,6 +12,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; }
+        [x-cloak] { display: none !important; }
         .glass-nav {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
@@ -22,11 +23,22 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
-    <div class="flex h-screen overflow-hidden">
+<body class="bg-gray-50 text-gray-800 overflow-x-hidden">
+    <div x-data="{ sidebarOpen: false }" class="min-h-screen lg:flex lg:overflow-hidden">
+        <div
+            x-cloak
+            x-show="sidebarOpen"
+            x-transition.opacity
+            @click="sidebarOpen = false"
+            class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden"
+        ></div>
+
         <!-- Sidebar -->
-        <aside class="w-72 sidebar-gradient text-white flex flex-col shadow-2xl z-20 transition-all duration-300">
-            <div class="p-8 flex items-center gap-4">
+        <aside
+            class="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] -translate-x-full flex-col sidebar-gradient text-white shadow-2xl transition-transform duration-300 lg:static lg:z-20 lg:h-screen lg:max-w-none lg:translate-x-0"
+            :class="sidebarOpen ? '!translate-x-0' : '-translate-x-full'"
+        >
+            <div class="p-6 sm:p-8 flex items-center gap-4">
                 <div class="bg-white/20 p-3 rounded-2xl backdrop-blur-sm shadow-inner">
                     <i class="fa-solid fa-shapes text-2xl text-white"></i>
                 </div>
@@ -34,12 +46,15 @@
                     <h1 class="font-bold text-2xl tracking-tight">Kidstation</h1>
                     <p class="text-xs text-indigo-200 font-medium tracking-wide">Premium Baby Shop</p>
                 </div>
+                <button @click="sidebarOpen = false" class="ml-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 lg:hidden" aria-label="Tutup menu">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
             <nav class="flex-1 px-6 mt-4 space-y-2">
                 <p class="px-4 text-xs font-semibold text-indigo-200/60 uppercase tracking-wider mb-2">Menu Utama</p>
                 
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group {{ request()->routeIs('dashboard') ? 'bg-white/20 shadow-lg text-white font-semibold' : 'hover:bg-white/10 text-indigo-100 hover:text-white' }}">
+                <a href="{{ route('dashboard') }}" @click="sidebarOpen = false" class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group {{ request()->routeIs('dashboard') ? 'bg-white/20 shadow-lg text-white font-semibold' : 'hover:bg-white/10 text-indigo-100 hover:text-white' }}">
                     <i class="fa-solid fa-chart-pie w-6 text-center text-lg {{ request()->routeIs('dashboard') ? 'text-white' : 'text-indigo-300 group-hover:text-white' }}"></i>
                     <span class="text-sm">Dashboard</span>
                     @if(request()->routeIs('dashboard'))
@@ -47,7 +62,7 @@
                     @endif
                 </a>
 
-                <a href="{{ route('sales.index') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group {{ request()->routeIs('sales.*') ? 'bg-white/20 shadow-lg text-white font-semibold' : 'hover:bg-white/10 text-indigo-100 hover:text-white' }}">
+                <a href="{{ route('sales.index') }}" @click="sidebarOpen = false" class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group {{ request()->routeIs('sales.*') ? 'bg-white/20 shadow-lg text-white font-semibold' : 'hover:bg-white/10 text-indigo-100 hover:text-white' }}">
                     <i class="fa-solid fa-cart-shopping w-6 text-center text-lg {{ request()->routeIs('sales.*') ? 'text-white' : 'text-indigo-300 group-hover:text-white' }}"></i>
                     <span class="text-sm">Penjualan</span>
                     @if(request()->routeIs('sales.*'))
@@ -55,7 +70,7 @@
                     @endif
                 </a>
 
-                <a href="{{ route('expenses.index') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group {{ request()->routeIs('expenses.*') ? 'bg-white/20 shadow-lg text-white font-semibold' : 'hover:bg-white/10 text-indigo-100 hover:text-white' }}">
+                <a href="{{ route('expenses.index') }}" @click="sidebarOpen = false" class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group {{ request()->routeIs('expenses.*') ? 'bg-white/20 shadow-lg text-white font-semibold' : 'hover:bg-white/10 text-indigo-100 hover:text-white' }}">
                     <i class="fa-solid fa-money-bill-wave w-6 text-center text-lg {{ request()->routeIs('expenses.*') ? 'text-white' : 'text-indigo-300 group-hover:text-white' }}"></i>
                     <span class="text-sm">Pengeluaran</span>
                     @if(request()->routeIs('expenses.*'))
@@ -63,7 +78,7 @@
                     @endif
                 </a>
 
-                <a href="{{ route('products.index') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group {{ request()->routeIs('products.*') ? 'bg-white/20 shadow-lg text-white font-semibold' : 'hover:bg-white/10 text-indigo-100 hover:text-white' }}">
+                <a href="{{ route('products.index') }}" @click="sidebarOpen = false" class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group {{ request()->routeIs('products.*') ? 'bg-white/20 shadow-lg text-white font-semibold' : 'hover:bg-white/10 text-indigo-100 hover:text-white' }}">
                     <i class="fa-solid fa-box-open w-6 text-center text-lg {{ request()->routeIs('products.*') ? 'text-white' : 'text-indigo-300 group-hover:text-white' }}"></i>
                     <span class="text-sm">Data Produk</span>
                     @if(request()->routeIs('products.*'))
@@ -71,7 +86,7 @@
                     @endif
                 </a>
 
-                <a href="{{ route('reports.index') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group {{ request()->routeIs('reports.*') ? 'bg-white/20 shadow-lg text-white font-semibold' : 'hover:bg-white/10 text-indigo-100 hover:text-white' }}">
+                <a href="{{ route('reports.index') }}" @click="sidebarOpen = false" class="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group {{ request()->routeIs('reports.*') ? 'bg-white/20 shadow-lg text-white font-semibold' : 'hover:bg-white/10 text-indigo-100 hover:text-white' }}">
                     <i class="fa-solid fa-file-invoice-dollar w-6 text-center text-lg {{ request()->routeIs('reports.*') ? 'text-white' : 'text-indigo-300 group-hover:text-white' }}"></i>
                     <span class="text-sm">Laporan</span>
                     @if(request()->routeIs('reports.*'))
@@ -94,35 +109,40 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto bg-gray-50/50 relative">
+        <main class="min-w-0 flex-1 overflow-y-auto bg-gray-50/50 relative lg:h-screen">
              <!-- Background decoration -->
              <div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-indigo-50 to-transparent -z-10"></div>
 
-            <div class="glass-nav sticky top-0 z-30 px-8 py-5 flex justify-between items-center">
-                <div>
-                     <h2 class="text-2xl font-bold text-gray-800 tracking-tight">@yield('title')</h2>
+            <div class="glass-nav sticky top-0 z-30 flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 lg:py-5">
+                <div class="flex items-start gap-3">
+                    <button @click="sidebarOpen = true" class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-gray-600 shadow-sm ring-1 ring-gray-200 transition hover:text-indigo-600 hover:shadow-md lg:hidden" aria-label="Buka menu">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="min-w-0">
+                     <h2 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">@yield('title')</h2>
                      <p class="text-gray-500 text-sm mt-1 font-medium flex items-center gap-2">
                         <i class="far fa-calendar-alt text-indigo-500"></i>
                         {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
                     </p>
+                    </div>
                 </div>
                 
-                <div class="flex items-center gap-4">
-                    <div class="relative group">
-                        <input type="text" placeholder="Cari data..." class="pl-11 pr-4 py-2.5 rounded-full border border-gray-200/80 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 bg-white/80 backdrop-blur w-64 transition-all group-hover:w-72 shadow-sm text-sm">
+                <div class="flex w-full items-center gap-3 sm:w-auto">
+                    <div class="group relative flex-1 sm:w-60 lg:w-64 xl:w-72">
+                        <input type="text" placeholder="Cari data..." class="w-full pl-11 pr-4 py-2.5 rounded-full border border-gray-200/80 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 bg-white/80 backdrop-blur shadow-sm text-sm">
                         <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400 transition-colors group-focus-within:text-indigo-500"></i>
                     </div>
                     
-                    <button class="w-10 h-10 bg-white rounded-full shadow-sm border border-gray-200 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:shadow-md transition-all relative">
+                    <button class="w-10 h-10 shrink-0 bg-white rounded-full shadow-sm border border-gray-200 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:shadow-md transition-all relative">
                         <i class="fa-solid fa-bell"></i>
                         <span class="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
                     </button>
                 </div>
             </div>
 
-            <div class="p-8">
+            <div class="p-4 sm:p-6 lg:p-8">
                 @if(session('success'))
-                    <div x-data="{ show: true }" x-show="show" class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-xl shadow-sm mb-6 flex items-center justify-between animate-fade-in-down" role="alert">
+                    <div x-data="{ show: true }" x-show="show" class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 sm:px-6 py-4 rounded-xl shadow-sm mb-6 flex items-start sm:items-center justify-between gap-4 animate-fade-in-down" role="alert">
                         <div class="flex items-center gap-3">
                             <div class="bg-emerald-100 p-2 rounded-full">
                                 <i class="fa-solid fa-check text-emerald-600"></i>

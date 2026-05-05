@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- Form Tambah Produk -->
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
     <div class="flex items-center gap-2 mb-6">
         <div class="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
             <i class="fa-solid fa-plus text-xs"></i>
@@ -35,7 +35,7 @@
                 <input type="number" name="price" class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-shadow" placeholder="0">
             </div>
         </div>
-        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-purple-200 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+        <button type="submit" class="w-full sm:w-auto justify-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-purple-200 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
             <i class="fa-solid fa-save"></i>
             Simpan Produk
         </button>
@@ -43,7 +43,7 @@
 </div>
 
 <!-- Daftar Produk -->
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
     <div class="flex items-center gap-2 mb-6">
         <div class="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
             <i class="fa-solid fa-box text-xs"></i>
@@ -56,7 +56,7 @@
         <div class="border border-gray-100 rounded-xl p-5 hover:shadow-md transition-shadow relative group">
             <div class="flex justify-between items-start mb-4">
                 <span class="bg-purple-50 text-purple-600 text-xs font-bold px-2 py-1 rounded">{{ $product->category }}</span>
-                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button class="text-blue-500 hover:bg-blue-50 p-1 rounded"><i class="fa-solid fa-pen"></i></button>
                     <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('Hapus produk ini?')">
                         @csrf

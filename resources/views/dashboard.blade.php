@@ -5,7 +5,7 @@
 @section('content')
 @php \Carbon\Carbon::setLocale('id'); @endphp
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
     <!-- Card 1: Penjualan -->
     <div class="bg-gradient-to-br from-emerald-400 to-teal-500 text-white p-6 rounded-3xl shadow-xl shadow-emerald-500/20 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
         <div class="relative z-10">
@@ -13,7 +13,7 @@
                 <i class="fa-solid fa-arrow-trend-up text-white text-xl"></i>
             </div>
             <p class="text-emerald-50 text-sm font-medium mb-1 tracking-wide">Total Penjualan</p>
-            <h3 class="text-3xl font-extrabold tracking-tight">Rp {{ number_format($totalSales, 0, ',', '.') }}</h3>
+            <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight break-words">Rp {{ number_format($totalSales, 0, ',', '.') }}</h3>
         </div>
         <div class="absolute top-4 right-4 bg-black/10 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">Hari Ini</div>
         <i class="fa-solid fa-chart-line absolute -bottom-6 -right-6 text-9xl text-white opacity-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500"></i>
@@ -26,7 +26,7 @@
                 <i class="fa-solid fa-arrow-trend-down text-white text-xl"></i>
             </div>
             <p class="text-rose-50 text-sm font-medium mb-1 tracking-wide">Total Pengeluaran</p>
-            <h3 class="text-3xl font-extrabold tracking-tight">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</h3>
+            <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight break-words">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</h3>
         </div>
         <div class="absolute top-4 right-4 bg-black/10 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">Hari Ini</div>
         <i class="fa-solid fa-wallet absolute -bottom-6 -right-6 text-9xl text-white opacity-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500"></i>
@@ -41,19 +41,19 @@
                 <i class="fa-solid fa-receipt text-white text-xl"></i>
             </div>
             <p class="text-violet-50 text-sm font-medium mb-1 tracking-wide">Jumlah Transaksi</p>
-            <h3 class="text-3xl font-extrabold tracking-tight">{{ number_format($transactionCount) }}</h3>
+            <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight break-words">{{ number_format($transactionCount) }}</h3>
         </div>
         <div class="absolute top-4 right-4 bg-black/10 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">Hari Ini</div>
         <i class="fa-solid fa-bag-shopping absolute -bottom-6 -right-6 text-9xl text-white opacity-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500"></i>
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
     <!-- Chart Section -->
-    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <div class="flex justify-between items-center mb-6">
+    <div class="lg:col-span-2 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 min-w-0">
+        <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
             <h3 class="font-bold text-gray-800 text-lg">Grafik Penjualan & Pengeluaran</h3>
-            <select class="border border-gray-300 rounded-lg text-sm px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select class="w-full sm:w-auto border border-gray-300 rounded-lg text-sm px-3 py-2 sm:py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option>7 Hari Terakhir</option>
                 <option>30 Hari Terakhir</option>
             </select>
@@ -64,22 +64,22 @@
     </div>
 
     <!-- Recent Transactions -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 min-w-0">
         <h3 class="font-bold text-gray-800 text-lg mb-6">Transaksi Terbaru</h3>
         
         <div class="space-y-4">
             @forelse($recentTransactions as $transaction)
-            <div class="flex justify-between items-center p-3 hover:bg-gray-50 rounded-lg transition-colors border-b border-gray-50 last:border-0">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+            <div class="flex flex-col gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors border-b border-gray-50 last:border-0 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex min-w-0 items-center gap-3">
+                    <div class="w-10 h-10 shrink-0 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                         <i class="fa-solid fa-basket-shopping"></i>
                     </div>
-                    <div>
-                        <p class="font-bold text-gray-800 text-sm">{{ $transaction->product ? $transaction->product->name : 'Produk Terhapus' }}</p>
+                    <div class="min-w-0">
+                        <p class="font-bold text-gray-800 text-sm truncate">{{ $transaction->product ? $transaction->product->name : 'Produk Terhapus' }}</p>
                         <p class="text-xs text-gray-500">{{ $transaction->created_at->format('H:i') }} • Qty: {{ $transaction->quantity }}</p>
                     </div>
                 </div>
-                <div class="text-right">
+                <div class="text-left sm:text-right">
                     <p class="font-bold text-green-600 text-sm">+Rp {{ number_format($transaction->total_price, 0, ',', '.') }}</p>
                     <p class="text-xs text-gray-400">{{ $transaction->date }}</p>
                 </div>

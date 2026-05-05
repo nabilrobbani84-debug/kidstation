@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- Form Tambah Penjualan -->
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
     <div class="flex items-center gap-2 mb-6">
         <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
             <i class="fa-solid fa-plus text-xs"></i>
@@ -38,7 +38,7 @@
                 <input type="text" id="totalDisplay" class="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 focus:outline-none text-gray-500 cursor-not-allowed" placeholder="Rp 0" readonly>
             </div>
         </div>
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-blue-200 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+        <button type="submit" class="w-full sm:w-auto justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-blue-200 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
             <i class="fa-solid fa-save"></i>
             Simpan Penjualan
         </button>
@@ -46,22 +46,22 @@
 </div>
 
 <!-- Daftar Penjualan -->
-<div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-    <div class="flex justify-between items-center mb-6">
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+    <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
         <div class="flex items-center gap-2">
             <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                 <i class="fa-solid fa-list text-xs"></i>
             </div>
             <h3 class="font-bold text-gray-800">Daftar Penjualan</h3>
         </div>
-        <div class="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-50">
+        <div class="flex w-full items-center justify-between gap-2 border border-gray-200 rounded-lg px-3 py-2 cursor-pointer hover:bg-gray-50 sm:w-auto sm:justify-start sm:py-1.5">
             <span class="text-sm text-gray-600">hh/bb/tttt</span>
             <i class="fa-regular fa-calendar text-gray-400"></i>
         </div>
     </div>
 
     <div class="overflow-x-auto">
-        <table class="w-full text-left">
+        <table class="min-w-[720px] w-full text-left">
             <thead>
                 <tr class="text-gray-400 text-xs uppercase tracking-wider border-b border-gray-100">
                     <th class="pb-4 font-bold text-center w-16">No</th>
