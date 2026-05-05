@@ -128,10 +128,18 @@
                 </div>
                 
                 <div class="flex w-full items-center gap-3 sm:w-auto">
-                    <div class="group relative flex-1 sm:w-60 lg:w-64 xl:w-72">
-                        <input type="text" placeholder="Cari data..." class="w-full pl-11 pr-4 py-2.5 rounded-full border border-gray-200/80 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 bg-white/80 backdrop-blur shadow-sm text-sm">
-                        <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400 transition-colors group-focus-within:text-indigo-500"></i>
-                    </div>
+                    <form action="{{ url()->current() }}" method="GET" class="group relative flex-1 sm:w-60 lg:w-64 xl:w-72">
+                        @if(request()->filled('date'))
+                            <input type="hidden" name="date" value="{{ request('date') }}">
+                        @endif
+                        @if(request()->filled('period'))
+                            <input type="hidden" name="period" value="{{ request('period') }}">
+                        @endif
+                        <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari data..." class="w-full pl-11 pr-4 py-2.5 rounded-full border border-gray-200/80 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 bg-white/80 backdrop-blur shadow-sm text-sm">
+                        <button type="submit" class="absolute left-4 top-3 text-gray-400 transition-colors group-focus-within:text-indigo-500" aria-label="Cari data">
+                            <i class="fa-solid fa-search"></i>
+                        </button>
+                    </form>
 
                     @php
                         $notifications = $notifications ?? collect();

@@ -9,10 +9,20 @@ use Carbon\Carbon;
 
 class SaleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $sales = Sale::with('product')->latest()->get();
-        $products = Product::all();
+        $sales = Sale::with('product')
+            ->when($request->filled('date'), fn ($query) => $query->whereDate('date', $request->input('date')))
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $keyword = $request->input('q');
+
+                $query->whereHas('product', fn ($query) => $query->where('name', 'like', "%{$keyword}%"));
+            })
+            ->latest()
+            ->get();
+
+        $products = Product::orderBy('name')->get();
+
         return view('sales.index', compact('sales', 'products'));
     }
 
@@ -35,5 +45,12 @@ class SaleController extends Controller
         ]);
 
         return redirect()->route('sales.index')->with('success', 'Penjualan berhasil disimpan');
+    }
+
+    public function destroy(Sale $sale)
+    {
+        $sale->delete();
+
+        return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dihapus');
     }
 }

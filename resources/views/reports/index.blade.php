@@ -17,8 +17,8 @@
         <div class="w-full md:w-1/4">
             <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Periode</label>
             <select name="period" class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 transition-shadow bg-white">
-                <option value="daily">Harian</option>
-                <option value="monthly">Bulanan</option>
+                <option value="daily" @selected($period === 'daily')>Harian</option>
+                <option value="monthly" @selected($period === 'monthly')>Bulanan</option>
             </select>
         </div>
         <div class="w-full md:w-1/4">
@@ -54,7 +54,7 @@
                 <i class="fa-solid fa-arrow-up text-green-500"></i>
                 <h3 class="font-bold text-gray-800">Detail Penjualan</h3>
             </div>
-            <a href="{{ route('reports.export.sales', ['date' => $date]) }}" class="shrink-0 text-blue-600 font-bold text-sm hover:underline"><i class="fa-solid fa-download mr-1"></i> Export</a>
+            <a href="{{ route('reports.export.sales', ['period' => $period, 'date' => $date]) }}" class="shrink-0 text-blue-600 font-bold text-sm hover:underline"><i class="fa-solid fa-download mr-1"></i> Export</a>
         </div>
         
         <div class="overflow-x-auto">
@@ -71,7 +71,7 @@
                     @forelse($sales as $sale)
                     <tr class="border-b border-gray-50 last:border-0 hover:bg-gray-50">
                         <td class="py-3">{{ \Carbon\Carbon::parse($sale->date)->format('d/m') }}</td>
-                        <td class="py-3 font-medium">{{ $sale->product->name }}</td>
+                        <td class="py-3 font-medium">{{ $sale->product?->name ?? 'Produk Terhapus' }}</td>
                         <td class="py-3 text-center">{{ $sale->quantity }}</td>
                         <td class="py-3 text-right">Rp {{ number_format($sale->total_price, 0, ',', '.') }}</td>
                     </tr>
@@ -92,7 +92,7 @@
                 <i class="fa-solid fa-arrow-down text-red-500"></i>
                 <h3 class="font-bold text-gray-800">Detail Pengeluaran</h3>
             </div>
-            <a href="{{ route('reports.export.expenses', ['date' => $date]) }}" class="shrink-0 text-blue-600 font-bold text-sm hover:underline"><i class="fa-solid fa-download mr-1"></i> Export</a>
+            <a href="{{ route('reports.export.expenses', ['period' => $period, 'date' => $date]) }}" class="shrink-0 text-blue-600 font-bold text-sm hover:underline"><i class="fa-solid fa-download mr-1"></i> Export</a>
         </div>
 
         <div class="overflow-x-auto">

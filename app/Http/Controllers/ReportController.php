@@ -11,33 +11,59 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        $period = in_array($request->input('period'), ['daily', 'monthly'], true)
+            ? $request->input('period')
+            : 'daily';
         $date = $request->input('date', Carbon::today()->format('Y-m-d'));
+        $selectedDate = Carbon::parse($date);
         
-        $totalSales = Sale::whereDate('date', $date)->sum('total_price');
-        $totalExpenses = Expense::whereDate('date', $date)->sum('amount');
+        $salesQuery = Sale::with('product');
+        $expensesQuery = Expense::query();
+
+        if ($period === 'monthly') {
+            $salesQuery->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month);
+            $expensesQuery->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month);
+        } else {
+            $salesQuery->whereDate('date', $selectedDate->format('Y-m-d'));
+            $expensesQuery->whereDate('date', $selectedDate->format('Y-m-d'));
+        }
+
+        $totalSales = (clone $salesQuery)->sum('total_price');
+        $totalExpenses = (clone $expensesQuery)->sum('amount');
         $netProfit = $totalSales - $totalExpenses;
 
-        $sales = Sale::whereDate('date', $date)->with('product')->get();
-        $expenses = Expense::whereDate('date', $date)->get();
+        $sales = $salesQuery->latest()->get();
+        $expenses = $expensesQuery->latest()->get();
 
-        return view('reports.index', compact('date', 'totalSales', 'totalExpenses', 'netProfit', 'sales', 'expenses'));
+        return view('reports.index', compact('period', 'date', 'totalSales', 'totalExpenses', 'netProfit', 'sales', 'expenses'));
     }
 
     public function exportSales(Request $request)
     {
+        $period = in_array($request->input('period'), ['daily', 'monthly'], true)
+            ? $request->input('period')
+            : 'daily';
         $date = $request->input('date', Carbon::today()->format('Y-m-d'));
-        $sales = Sale::whereDate('date', $date)->with('product')->get();
+        $selectedDate = Carbon::parse($date);
+        $sales = Sale::with('product')
+            ->when(
+                $period === 'monthly',
+                fn ($query) => $query->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month),
+                fn ($query) => $query->whereDate('date', $selectedDate->format('Y-m-d'))
+            )
+            ->latest()
+            ->get();
         
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="penjualan-'.$date.'.csv"',
+            'Content-Disposition' => 'attachment; filename="penjualan-'.$period.'-'.$date.'.csv"',
         ];
 
         $callback = function() use ($sales) {
             $file = fopen('php://output', 'w');
             fputcsv($file, ['Tanggal', 'Produk', 'Quantity', 'Total']);
             foreach ($sales as $sale) {
-                fputcsv($file, [$sale->date, $sale->product->name, $sale->quantity, $sale->total_price]);
+                fputcsv($file, [$sale->date, $sale->product?->name ?? 'Produk Terhapus', $sale->quantity, $sale->total_price]);
             }
             fclose($file);
         };
@@ -47,12 +73,23 @@ class ReportController extends Controller
 
     public function exportExpenses(Request $request)
     {
+        $period = in_array($request->input('period'), ['daily', 'monthly'], true)
+            ? $request->input('period')
+            : 'daily';
         $date = $request->input('date', Carbon::today()->format('Y-m-d'));
-        $expenses = Expense::whereDate('date', $date)->get();
+        $selectedDate = Carbon::parse($date);
+        $expenses = Expense::query()
+            ->when(
+                $period === 'monthly',
+                fn ($query) => $query->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month),
+                fn ($query) => $query->whereDate('date', $selectedDate->format('Y-m-d'))
+            )
+            ->latest()
+            ->get();
         
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="pengeluaran-'.$date.'.csv"',
+            'Content-Disposition' => 'attachment; filename="pengeluaran-'.$period.'-'.$date.'.csv"',
         ];
 
         $callback = function() use ($expenses) {

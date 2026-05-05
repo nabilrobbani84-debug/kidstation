@@ -7,9 +7,21 @@ use App\Models\Expense;
 
 class ExpenseController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $expenses = Expense::latest()->get();
+        $expenses = Expense::query()
+            ->when($request->filled('date'), fn ($query) => $query->whereDate('date', $request->input('date')))
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $keyword = $request->input('q');
+
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('category', 'like', "%{$keyword}%")
+                        ->orWhere('description', 'like', "%{$keyword}%");
+                });
+            })
+            ->latest()
+            ->get();
+
         return view('expenses.index', compact('expenses'));
     }
 
@@ -25,5 +37,12 @@ class ExpenseController extends Controller
         Expense::create($request->all());
 
         return redirect()->route('expenses.index')->with('success', 'Pengeluaran berhasil disimpan');
+    }
+
+    public function destroy(Expense $expense)
+    {
+        $expense->delete();
+
+        return redirect()->route('expenses.index')->with('success', 'Pengeluaran berhasil dihapus');
     }
 }

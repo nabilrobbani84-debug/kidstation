@@ -47,17 +47,21 @@
 
 <!-- Daftar Penjualan -->
 <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
-    <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
+    <div class="flex flex-col gap-4 mb-6 lg:flex-row lg:justify-between lg:items-center">
         <div class="flex items-center gap-2">
             <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                 <i class="fa-solid fa-list text-xs"></i>
             </div>
             <h3 class="font-bold text-gray-800">Daftar Penjualan</h3>
         </div>
-        <div class="flex w-full items-center justify-between gap-2 border border-gray-200 rounded-lg px-3 py-2 cursor-pointer hover:bg-gray-50 sm:w-auto sm:justify-start sm:py-1.5">
-            <span class="text-sm text-gray-600">hh/bb/tttt</span>
-            <i class="fa-regular fa-calendar text-gray-400"></i>
-        </div>
+        <form action="{{ route('sales.index') }}" method="GET" class="grid w-full grid-cols-1 gap-2 sm:grid-cols-[1fr_180px_auto_auto] lg:w-auto">
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari produk..." class="rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="date" name="date" value="{{ request('date') }}" class="rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-blue-700">Filter</button>
+            @if(request()->filled('q') || request()->filled('date'))
+                <a href="{{ route('sales.index') }}" class="rounded-lg border border-gray-200 px-5 py-2.5 text-center text-sm font-bold text-gray-500 transition hover:bg-gray-50">Reset</a>
+            @endif
+        </form>
     </div>
 
     <div class="overflow-x-auto">
@@ -77,17 +81,21 @@
                 <tr class="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                     <td class="py-4 text-center">{{ $index + 1 }}</td>
                     <td class="py-4">{{ \Carbon\Carbon::parse($sale->date)->format('d/m/Y') }}</td>
-                    <td class="py-4 font-medium text-gray-800">{{ $sale->product->name }}</td>
+                    <td class="py-4 font-medium text-gray-800">{{ $sale->product?->name ?? 'Produk Terhapus' }}</td>
                     <td class="py-4 text-center">{{ $sale->quantity }}</td>
                     <td class="py-4 text-right font-bold text-blue-600">Rp {{ number_format($sale->total_price, 0, ',', '.') }}</td>
                     <td class="py-4 text-center">
-                        <button class="text-gray-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-trash"></i></button>
+                        <form action="{{ route('sales.destroy', $sale) }}" method="POST" onsubmit="return confirm('Hapus data penjualan ini?')" class="inline-flex">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-trash"></i></button>
+                        </form>
                     </td>
                 </tr>
                 @empty
                 <tr>
                     <td colspan="6" class="py-10 text-center text-gray-400">
-                        Belum ada data penjualan
+                        {{ request()->filled('q') || request()->filled('date') ? 'Data penjualan tidak ditemukan' : 'Belum ada data penjualan' }}
                     </td>
                 </tr>
                 @endforelse
