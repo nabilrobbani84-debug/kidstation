@@ -132,11 +132,95 @@
                         <input type="text" placeholder="Cari data..." class="w-full pl-11 pr-4 py-2.5 rounded-full border border-gray-200/80 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 bg-white/80 backdrop-blur shadow-sm text-sm">
                         <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400 transition-colors group-focus-within:text-indigo-500"></i>
                     </div>
-                    
-                    <button class="w-10 h-10 shrink-0 bg-white rounded-full shadow-sm border border-gray-200 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:shadow-md transition-all relative">
-                        <i class="fa-solid fa-bell"></i>
-                        <span class="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-                    </button>
+
+                    @php
+                        $notifications = $notifications ?? collect();
+                        $unreadNotificationsCount = $unreadNotificationsCount ?? 0;
+                    @endphp
+                    <div x-data="{ notificationOpen: false }" @click.outside="notificationOpen = false" @keydown.escape.window="notificationOpen = false" class="relative shrink-0">
+                        <button
+                            type="button"
+                            @click="notificationOpen = !notificationOpen"
+                            class="w-10 h-10 shrink-0 bg-white rounded-full shadow-sm border border-gray-200 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:shadow-md transition-all relative"
+                            :aria-expanded="notificationOpen.toString()"
+                            aria-label="Buka notifikasi"
+                        >
+                            <i class="fa-solid fa-bell"></i>
+                            @if($unreadNotificationsCount > 0)
+                                <span class="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-red-500 rounded-full ring-2 ring-white text-[10px] font-bold leading-5 text-white text-center">
+                                    {{ $unreadNotificationsCount > 9 ? '9+' : $unreadNotificationsCount }}
+                                </span>
+                            @endif
+                        </button>
+
+                        <div
+                            x-cloak
+                            x-show="notificationOpen"
+                            x-transition.origin.top.right
+                            class="absolute right-0 top-12 z-50 w-[calc(100vw-2rem)] overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-2xl shadow-slate-900/15 sm:w-96"
+                        >
+                            <div class="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
+                                <div>
+                                    <h3 class="font-bold text-gray-900">Notifikasi</h3>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $unreadNotificationsCount > 0 ? $unreadNotificationsCount.' belum dibaca' : 'Semua sudah dibaca' }}
+                                    </p>
+                                </div>
+
+                                @if($unreadNotificationsCount > 0)
+                                    <form action="{{ route('notifications.read') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-600 transition hover:bg-indigo-100">
+                                            Tandai dibaca
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+
+                            <div class="max-h-96 overflow-y-auto p-2">
+                                @forelse($notifications as $notification)
+                                    @php
+                                        $toneClass = match ($notification['tone']) {
+                                            'emerald' => 'bg-emerald-50 text-emerald-600 ring-emerald-100',
+                                            'rose' => 'bg-rose-50 text-rose-600 ring-rose-100',
+                                            'amber' => 'bg-amber-50 text-amber-600 ring-amber-100',
+                                            default => 'bg-indigo-50 text-indigo-600 ring-indigo-100',
+                                        };
+                                    @endphp
+                                    <a href="{{ $notification['url'] }}" @click="notificationOpen = false" class="flex gap-3 rounded-2xl px-3 py-3 transition hover:bg-gray-50">
+                                        <span class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ring-1 {{ $toneClass }}">
+                                            <i class="fa-solid {{ $notification['icon'] }}"></i>
+                                        </span>
+                                        <span class="min-w-0 flex-1">
+                                            <span class="flex items-start justify-between gap-2">
+                                                <span class="font-bold text-sm text-gray-900">{{ $notification['title'] }}</span>
+                                                @if($notification['unread'])
+                                                    <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-red-500"></span>
+                                                @endif
+                                            </span>
+                                            <span class="mt-1 block text-sm leading-5 text-gray-600">{{ $notification['body'] }}</span>
+                                            <span class="mt-2 block text-xs font-medium text-gray-400">{{ $notification['time'] }}</span>
+                                        </span>
+                                    </a>
+                                @empty
+                                    <div class="px-5 py-10 text-center">
+                                        <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 text-gray-400">
+                                            <i class="fa-regular fa-bell"></i>
+                                        </div>
+                                        <p class="font-bold text-gray-800">Belum ada notifikasi</p>
+                                        <p class="mt-1 text-sm text-gray-500">Notifikasi akan muncul setelah ada aktivitas toko.</p>
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            <div class="border-t border-gray-100 bg-gray-50 px-5 py-3">
+                                <a href="{{ route('reports.index') }}" class="flex items-center justify-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-700">
+                                    Lihat laporan
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
