@@ -9,19 +9,24 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $today = Carbon::today();
+        $chartRange = (int) $request->input('chart_range', 7);
+        $chartRange = in_array($chartRange, [7, 30], true) ? $chartRange : 7;
         
         $totalSales = Sale::sum('total_price');
         $totalExpenses = Expense::sum('amount');
         $netProfit = $totalSales - $totalExpenses;
         $transactionCount = Sale::count();
 
-        // Chart Data (Last 7 Days)
-        $chartData = [];
+        // Chart Data
+        $chartData = [
+            'sales' => [],
+            'expenses' => [],
+        ];
         $dates = [];
-        for ($i = 6; $i >= 0; $i--) {
+        for ($i = $chartRange - 1; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i)->format('Y-m-d');
             $dates[] = Carbon::now()->subDays($i)->format('d/m');
             
@@ -31,6 +36,10 @@ class DashboardController extends Controller
 
         $recentTransactions = Sale::with('product')->latest()->take(5)->get();
 
-        return view('dashboard', compact('totalSales', 'totalExpenses', 'netProfit', 'transactionCount', 'chartData', 'dates', 'recentTransactions'));
+        $hasChartData = collect($chartData['sales'])
+            ->merge($chartData['expenses'])
+            ->contains(fn ($value) => (float) $value > 0);
+
+        return view('dashboard', compact('totalSales', 'totalExpenses', 'netProfit', 'transactionCount', 'chartData', 'dates', 'chartRange', 'hasChartData', 'recentTransactions'));
     }
 }

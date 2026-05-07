@@ -53,14 +53,33 @@
     <div class="lg:col-span-2 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 min-w-0">
         <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
             <h3 class="font-bold text-gray-800 text-lg">Grafik Penjualan & Pengeluaran</h3>
-            <select class="w-full sm:w-auto border border-gray-300 rounded-lg text-sm px-3 py-2 sm:py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>7 Hari Terakhir</option>
-                <option>30 Hari Terakhir</option>
-            </select>
+            <form action="{{ route('dashboard') }}" method="GET" class="w-full sm:w-auto">
+                @if(request()->filled('q'))
+                    <input type="hidden" name="q" value="{{ request('q') }}">
+                @endif
+                <select name="chart_range" onchange="this.form.submit()" class="w-full sm:w-auto border border-gray-300 rounded-lg text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="7" @selected($chartRange === 7)>7 Hari Terakhir</option>
+                    <option value="30" @selected($chartRange === 30)>30 Hari Terakhir</option>
+                </select>
+            </form>
         </div>
-        <div class="relative h-72">
+        <div class="relative h-72" data-chart-container>
             <canvas id="salesChart"></canvas>
+            <div id="chartFallback" class="hidden absolute inset-0 items-center justify-center rounded-2xl bg-gray-50 text-center">
+                <div>
+                    <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <p class="font-bold text-gray-700">Grafik belum bisa dimuat</p>
+                    <p class="mt-1 text-sm text-gray-500">Refresh halaman atau cek koneksi internet untuk Chart.js.</p>
+                </div>
+            </div>
         </div>
+        @unless($hasChartData)
+            <p class="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
+                Belum ada data penjualan atau pengeluaran untuk {{ $chartRange }} hari terakhir.
+            </p>
+        @endunless
     </div>
 
     <!-- Recent Transactions -->
@@ -93,51 +112,91 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-    const ctx = document.getElementById('salesChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: {!! json_encode($dates) !!},
-            datasets: [{
-                label: 'Penjualan',
-                data: {!! json_encode($chartData['sales']) !!},
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                fill: true,
-                tension: 0.4
-            }, {
-                label: 'Pengeluaran',
-                data: {!! json_encode($chartData['expenses']) !!},
-                borderColor: '#f43f5e',
-                backgroundColor: 'rgba(244, 63, 94, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
+    document.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('salesChart');
+        const fallback = document.getElementById('chartFallback');
+
+        if (!canvas || !window.Chart) {
+            fallback?.classList.remove('hidden');
+            fallback?.classList.add('flex');
+            return;
+        }
+
+        const rupiah = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            maximumFractionDigits: 0,
+        });
+
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: @json($dates),
+                datasets: [{
+                    label: 'Penjualan',
+                    data: @json($chartData['sales']),
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#ffffff',
+                    pointHoverRadius: 6,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Pengeluaran',
+                    data: @json($chartData['expenses']),
+                    borderColor: '#f43f5e',
+                    backgroundColor: 'rgba(244, 63, 94, 0.10)',
+                    pointBackgroundColor: '#f43f5e',
+                    pointBorderColor: '#ffffff',
+                    pointHoverRadius: 6,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
-                    }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
                 },
-                x: {
-                    grid: {
-                        display: false
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            boxWidth: 10,
+                            usePointStyle: true,
+                        },
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `${context.dataset.label}: ${rupiah.format(context.parsed.y || 0)}`,
+                        },
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => rupiah.format(value),
+                        },
+                        grid: {
+                            color: 'rgba(15, 23, 42, 0.06)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
-        }
+        });
     });
 </script>
 
