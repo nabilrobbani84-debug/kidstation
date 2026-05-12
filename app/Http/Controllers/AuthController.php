@@ -47,12 +47,9 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
-        $user = User::create($validated);
+        User::create($validated);
 
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect()->route('dashboard')->with('success', 'Akun admin berhasil dibuat.');
+        return redirect()->route('login')->with('status', 'Akun admin berhasil dibuat. Silakan login untuk masuk ke dashboard.');
     }
 
     public function logout(Request $request): RedirectResponse

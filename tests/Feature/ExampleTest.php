@@ -27,4 +27,20 @@ class ExampleTest extends TestCase
             ->get('/')
             ->assertStatus(200);
     }
+
+    public function test_register_redirects_to_login_without_auto_login(): void
+    {
+        $this->post(route('register.store'), [
+            'name' => 'Admin Baru',
+            'email' => 'admin-baru@example.test',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ])->assertRedirect(route('login'));
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'admin-baru@example.test',
+        ]);
+
+        $this->assertGuest();
+    }
 }
