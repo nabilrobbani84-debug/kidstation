@@ -98,12 +98,19 @@
             <div class="p-6 mt-auto">
                 <div class="flex items-center gap-4 px-4 py-4 bg-black/20 rounded-2xl backdrop-blur-md border border-white/5">
                     <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-400 to-orange-500 flex items-center justify-center text-white shadow-lg">
-                        <i class="fa-solid fa-user-secret"></i>
+                        <i class="fa-solid fa-user-shield"></i>
                     </div>
-                    <div class="overflow-hidden">
+                    <div class="min-w-0 flex-1 overflow-hidden">
                         <p class="text-indigo-200 text-xs font-medium">Logged in as</p>
-                        <p class="font-bold text-sm truncate text-white">Admin</p>
+                        <p class="font-bold text-sm truncate text-white">{{ auth()->user()->name }}</p>
+                        <p class="text-xs text-indigo-200/80 truncate">{{ auth()->user()->email }}</p>
                     </div>
+                    <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Logout dari akun admin?')">
+                        @csrf
+                        <button type="submit" class="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-indigo-100 transition hover:bg-white/20 hover:text-white" aria-label="Logout">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         </aside>
