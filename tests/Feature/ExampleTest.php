@@ -44,18 +44,32 @@ class ExampleTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_login_page_has_google_login_option(): void
+    public function test_login_page_shows_google_unavailable_notice_without_configuration(): void
     {
+        $this->get(route('login'))
+            ->assertStatus(200)
+            ->assertSee('Login Google belum aktif')
+            ->assertDontSee(route('google.redirect'), false);
+    }
+
+    public function test_login_page_has_google_login_option_when_configured(): void
+    {
+        config([
+            'services.google.client_id' => 'google-client-id',
+            'services.google.client_secret' => 'google-client-secret',
+            'services.google.redirect' => 'http://localhost/auth/google/callback',
+        ]);
+
         $this->get(route('login'))
             ->assertStatus(200)
             ->assertSee('Masuk dengan Google')
             ->assertSee(route('google.redirect'), false);
     }
 
-    public function test_google_login_without_configuration_redirects_with_error(): void
+    public function test_google_login_without_configuration_redirects_with_notice(): void
     {
         $this->get(route('google.redirect'))
             ->assertRedirect(route('login'))
-            ->assertSessionHasErrors('google');
+            ->assertSessionHas('google_unavailable');
     }
 }

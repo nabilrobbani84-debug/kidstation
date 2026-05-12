@@ -15,7 +15,9 @@ class AuthController extends Controller
 {
     public function showLogin(): View
     {
-        return view('auth.login');
+        return view('auth.login', [
+            'googleLoginConfigured' => $this->googleLoginIsConfigured(),
+        ]);
     }
 
     public function login(Request $request): RedirectResponse
@@ -41,7 +43,7 @@ class AuthController extends Controller
         if (! $this->googleLoginIsConfigured()) {
             return redirect()
                 ->route('login')
-                ->withErrors(['google' => 'Login Google belum dikonfigurasi. Isi GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, dan GOOGLE_REDIRECT_URI terlebih dahulu.']);
+                ->with('google_unavailable', 'Login Google belum aktif. Silakan login menggunakan email dan password admin.');
         }
 
         return Socialite::driver('google')->redirect();
@@ -52,7 +54,7 @@ class AuthController extends Controller
         if (! $this->googleLoginIsConfigured()) {
             return redirect()
                 ->route('login')
-                ->withErrors(['google' => 'Login Google belum dikonfigurasi. Isi GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, dan GOOGLE_REDIRECT_URI terlebih dahulu.']);
+                ->with('google_unavailable', 'Login Google belum aktif. Silakan login menggunakan email dan password admin.');
         }
 
         try {
@@ -89,7 +91,9 @@ class AuthController extends Controller
 
     public function showRegister(): View
     {
-        return view('auth.register');
+        return view('auth.register', [
+            'googleLoginConfigured' => $this->googleLoginIsConfigured(),
+        ]);
     }
 
     public function register(Request $request): RedirectResponse
