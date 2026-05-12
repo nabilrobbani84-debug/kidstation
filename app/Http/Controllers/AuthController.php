@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
+use Laravel\Socialite\Facades\Socialite;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -28,6 +30,57 @@ class AuthController extends Controller
                 ->withErrors(['email' => 'Email atau password tidak sesuai.'])
                 ->onlyInput('email');
         }
+
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('dashboard'));
+    }
+
+    public function redirectToGoogle(): RedirectResponse
+    {
+        if (! $this->googleLoginIsConfigured()) {
+            return redirect()
+                ->route('login')
+                ->withErrors(['google' => 'Login Google belum dikonfigurasi. Isi GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, dan GOOGLE_REDIRECT_URI terlebih dahulu.']);
+        }
+
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback(Request $request): RedirectResponse
+    {
+        if (! $this->googleLoginIsConfigured()) {
+            return redirect()
+                ->route('login')
+                ->withErrors(['google' => 'Login Google belum dikonfigurasi. Isi GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, dan GOOGLE_REDIRECT_URI terlebih dahulu.']);
+        }
+
+        try {
+            $googleUser = Socialite::driver('google')->user();
+        } catch (Throwable) {
+            return redirect()
+                ->route('login')
+                ->withErrors(['google' => 'Login Google gagal. Silakan coba lagi.']);
+        }
+
+        $email = $googleUser->getEmail();
+
+        if (! $email) {
+            return redirect()
+                ->route('login')
+                ->withErrors(['google' => 'Akun Google tidak mengirimkan alamat email. Gunakan akun Google lain.']);
+        }
+
+        $user = User::where('email', $email)->first();
+
+        if (! $user) {
+            return redirect()
+                ->route('login')
+                ->withErrors(['google' => 'Email Google tersebut belum terdaftar sebagai admin. Silakan daftar admin dahulu, lalu login kembali.'])
+                ->withInput(['email' => $email]);
+        }
+
+        Auth::login($user, true);
 
         $request->session()->regenerate();
 
@@ -60,5 +113,12 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login')->with('status', 'Anda sudah logout.');
+    }
+
+    private function googleLoginIsConfigured(): bool
+    {
+        return filled(config('services.google.client_id'))
+            && filled(config('services.google.client_secret'))
+            && filled(config('services.google.redirect'));
     }
 }

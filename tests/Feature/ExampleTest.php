@@ -43,4 +43,19 @@ class ExampleTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_login_page_has_google_login_option(): void
+    {
+        $this->get(route('login'))
+            ->assertStatus(200)
+            ->assertSee('Masuk dengan Google')
+            ->assertSee(route('google.redirect'), false);
+    }
+
+    public function test_google_login_without_configuration_redirects_with_error(): void
+    {
+        $this->get(route('google.redirect'))
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors('google');
+    }
 }

@@ -59,6 +59,23 @@
                     </div>
                 @endif
 
+                @error('google')
+                    <div class="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                        {{ $message }}
+                    </div>
+                @enderror
+
+                <a href="{{ route('google.redirect') }}" class="mb-5 flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3 font-bold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
+                    <i class="fa-brands fa-google text-lg text-rose-500"></i>
+                    Masuk dengan Google
+                </a>
+
+                <div class="mb-5 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                    <span class="h-px flex-1 bg-slate-200"></span>
+                    atau email admin
+                    <span class="h-px flex-1 bg-slate-200"></span>
+                </div>
+
                 <form action="{{ route('login.store') }}" method="POST" class="space-y-5">
                     @csrf
                     <div>
