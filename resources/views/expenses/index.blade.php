@@ -4,6 +4,22 @@
 
 @section('content')
 
+@if(isset($dbError) && $dbError)
+    <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 flex gap-4 items-start text-rose-800 shadow-sm">
+        <i class="fa-solid fa-triangle-exclamation mt-1 text-xl text-rose-500"></i>
+        <div>
+            <h3 class="font-bold">Koneksi Database Gagal</h3>
+            <p class="text-sm mt-1">{{ $dbError }}</p>
+        </div>
+    </div>
+@endif
+
+@error('db')
+    <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+        <i class="fa-solid fa-circle-xmark mr-2"></i>{{ $message }}
+    </div>
+@enderror
+
 <!-- Form Tambah Pengeluaran -->
 <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
     <div class="flex items-center gap-2 mb-6">

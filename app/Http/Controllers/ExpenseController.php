@@ -9,40 +9,52 @@ class ExpenseController extends Controller
 {
     public function index(Request $request)
     {
-        $expenses = Expense::query()
-            ->when($request->filled('date'), fn ($query) => $query->whereDate('date', $request->input('date')))
-            ->when($request->filled('q'), function ($query) use ($request) {
-                $keyword = $request->input('q');
+        $expenses = collect();
+        $dbError  = null;
 
-                $query->where(function ($query) use ($keyword) {
-                    $query->where('category', 'like', "%{$keyword}%")
-                        ->orWhere('description', 'like', "%{$keyword}%");
-                });
-            })
-            ->latest()
-            ->get();
+        try {
+            $expenses = Expense::query()
+                ->when($request->filled('date'), fn ($q) => $q->whereDate('date', $request->input('date')))
+                ->when($request->filled('q'), function ($q) use ($request) {
+                    $keyword = $request->input('q');
+                    $q->where(function ($q) use ($keyword) {
+                        $q->where('category', 'like', "%{$keyword}%")
+                          ->orWhere('description', 'like', "%{$keyword}%");
+                    });
+                })
+                ->latest()
+                ->get();
+        } catch (\Throwable $e) {
+            $dbError = 'Tidak dapat terhubung ke database: ' . $e->getMessage();
+        }
 
-        return view('expenses.index', compact('expenses'));
+        return view('expenses.index', compact('expenses', 'dbError'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'date' => 'required|date',
-            'category' => 'required',
+            'date'        => 'required|date',
+            'category'    => 'required',
             'description' => 'required',
-            'amount' => 'required|numeric',
+            'amount'      => 'required|numeric',
         ]);
 
-        Expense::create($request->all());
-
-        return redirect()->route('expenses.index')->with('success', 'Pengeluaran berhasil disimpan');
+        try {
+            Expense::create($request->only('date', 'category', 'description', 'amount'));
+            return redirect()->route('expenses.index')->with('success', 'Pengeluaran berhasil disimpan');
+        } catch (\Throwable $e) {
+            return back()->withErrors(['db' => 'Gagal menyimpan pengeluaran: ' . $e->getMessage()])->withInput();
+        }
     }
 
     public function destroy(Expense $expense)
     {
-        $expense->delete();
-
-        return redirect()->route('expenses.index')->with('success', 'Pengeluaran berhasil dihapus');
+        try {
+            $expense->delete();
+            return redirect()->route('expenses.index')->with('success', 'Pengeluaran berhasil dihapus');
+        } catch (\Throwable $e) {
+            return back()->withErrors(['db' => 'Gagal menghapus pengeluaran: ' . $e->getMessage()]);
+        }
     }
 }

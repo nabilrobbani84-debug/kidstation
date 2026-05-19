@@ -11,46 +11,60 @@ class SaleController extends Controller
 {
     public function index(Request $request)
     {
-        $sales = Sale::with('product')
-            ->when($request->filled('date'), fn ($query) => $query->whereDate('date', $request->input('date')))
-            ->when($request->filled('q'), function ($query) use ($request) {
-                $keyword = $request->input('q');
+        $sales    = collect();
+        $products = collect();
+        $dbError  = null;
 
-                $query->whereHas('product', fn ($query) => $query->where('name', 'like', "%{$keyword}%"));
-            })
-            ->latest()
-            ->get();
+        try {
+            $sales = Sale::with('product')
+                ->when($request->filled('date'), fn ($q) => $q->whereDate('date', $request->input('date')))
+                ->when($request->filled('q'), function ($q) use ($request) {
+                    $keyword = $request->input('q');
+                    $q->whereHas('product', fn ($q) => $q->where('name', 'like', "%{$keyword}%"));
+                })
+                ->latest()
+                ->get();
 
-        $products = Product::orderBy('name')->get();
+            $products = Product::orderBy('name')->get();
+        } catch (\Throwable $e) {
+            $dbError = 'Tidak dapat terhubung ke database: ' . $e->getMessage();
+        }
 
-        return view('sales.index', compact('sales', 'products'));
+        return view('sales.index', compact('sales', 'products', 'dbError'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'date' => 'required|date',
+            'date'       => 'required|date',
             'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
+            'quantity'   => 'required|integer|min:1',
         ]);
 
-        $product = Product::find($request->product_id);
-        $total_price = $product->price * $request->quantity;
+        try {
+            $product     = Product::findOrFail($request->product_id);
+            $total_price = $product->price * $request->quantity;
 
-        Sale::create([
-            'date' => $request->date,
-            'product_id' => $request->product_id,
-            'quantity' => $request->quantity,
-            'total_price' => $total_price,
-        ]);
+            Sale::create([
+                'date'       => $request->date,
+                'product_id' => $request->product_id,
+                'quantity'   => $request->quantity,
+                'total_price'=> $total_price,
+            ]);
 
-        return redirect()->route('sales.index')->with('success', 'Penjualan berhasil disimpan');
+            return redirect()->route('sales.index')->with('success', 'Penjualan berhasil disimpan');
+        } catch (\Throwable $e) {
+            return back()->withErrors(['db' => 'Gagal menyimpan penjualan: ' . $e->getMessage()])->withInput();
+        }
     }
 
     public function destroy(Sale $sale)
     {
-        $sale->delete();
-
-        return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dihapus');
+        try {
+            $sale->delete();
+            return redirect()->route('sales.index')->with('success', 'Penjualan berhasil dihapus');
+        } catch (\Throwable $e) {
+            return back()->withErrors(['db' => 'Gagal menghapus penjualan: ' . $e->getMessage()]);
+        }
     }
 }

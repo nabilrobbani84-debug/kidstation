@@ -11,55 +11,70 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        $period = in_array($request->input('period'), ['daily', 'monthly'], true)
+        $period       = in_array($request->input('period'), ['daily', 'monthly'], true)
             ? $request->input('period')
             : 'daily';
-        $date = $request->input('date', Carbon::today()->format('Y-m-d'));
+        $date         = $request->input('date', Carbon::today()->format('Y-m-d'));
         $selectedDate = Carbon::parse($date);
-        
-        $salesQuery = Sale::with('product');
-        $expensesQuery = Expense::query();
 
-        if ($period === 'monthly') {
-            $salesQuery->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month);
-            $expensesQuery->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month);
-        } else {
-            $salesQuery->whereDate('date', $selectedDate->format('Y-m-d'));
-            $expensesQuery->whereDate('date', $selectedDate->format('Y-m-d'));
+        $totalSales    = 0;
+        $totalExpenses = 0;
+        $netProfit     = 0;
+        $sales         = collect();
+        $expenses      = collect();
+        $dbError       = null;
+
+        try {
+            $salesQuery    = Sale::with('product');
+            $expensesQuery = Expense::query();
+
+            if ($period === 'monthly') {
+                $salesQuery->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month);
+                $expensesQuery->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month);
+            } else {
+                $salesQuery->whereDate('date', $selectedDate->format('Y-m-d'));
+                $expensesQuery->whereDate('date', $selectedDate->format('Y-m-d'));
+            }
+
+            $totalSales    = (clone $salesQuery)->sum('total_price');
+            $totalExpenses = (clone $expensesQuery)->sum('amount');
+            $netProfit     = $totalSales - $totalExpenses;
+            $sales         = $salesQuery->latest()->get();
+            $expenses      = $expensesQuery->latest()->get();
+        } catch (\Throwable $e) {
+            $dbError = 'Tidak dapat terhubung ke database: ' . $e->getMessage();
         }
 
-        $totalSales = (clone $salesQuery)->sum('total_price');
-        $totalExpenses = (clone $expensesQuery)->sum('amount');
-        $netProfit = $totalSales - $totalExpenses;
-
-        $sales = $salesQuery->latest()->get();
-        $expenses = $expensesQuery->latest()->get();
-
-        return view('reports.index', compact('period', 'date', 'totalSales', 'totalExpenses', 'netProfit', 'sales', 'expenses'));
+        return view('reports.index', compact('period', 'date', 'totalSales', 'totalExpenses', 'netProfit', 'sales', 'expenses', 'dbError'));
     }
 
     public function exportSales(Request $request)
     {
-        $period = in_array($request->input('period'), ['daily', 'monthly'], true)
+        $period       = in_array($request->input('period'), ['daily', 'monthly'], true)
             ? $request->input('period')
             : 'daily';
-        $date = $request->input('date', Carbon::today()->format('Y-m-d'));
+        $date         = $request->input('date', Carbon::today()->format('Y-m-d'));
         $selectedDate = Carbon::parse($date);
-        $sales = Sale::with('product')
-            ->when(
-                $period === 'monthly',
-                fn ($query) => $query->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month),
-                fn ($query) => $query->whereDate('date', $selectedDate->format('Y-m-d'))
-            )
-            ->latest()
-            ->get();
-        
+
+        try {
+            $sales = Sale::with('product')
+                ->when(
+                    $period === 'monthly',
+                    fn ($q) => $q->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month),
+                    fn ($q) => $q->whereDate('date', $selectedDate->format('Y-m-d'))
+                )
+                ->latest()
+                ->get();
+        } catch (\Throwable $e) {
+            return back()->withErrors(['db' => 'Gagal mengekspor data: ' . $e->getMessage()]);
+        }
+
         $headers = [
-            'Content-Type' => 'text/csv',
+            'Content-Type'        => 'text/csv',
             'Content-Disposition' => 'attachment; filename="penjualan-'.$period.'-'.$date.'.csv"',
         ];
 
-        $callback = function() use ($sales) {
+        $callback = function () use ($sales) {
             $file = fopen('php://output', 'w');
             fputcsv($file, ['Tanggal', 'Produk', 'Quantity', 'Total']);
             foreach ($sales as $sale) {
@@ -73,26 +88,31 @@ class ReportController extends Controller
 
     public function exportExpenses(Request $request)
     {
-        $period = in_array($request->input('period'), ['daily', 'monthly'], true)
+        $period       = in_array($request->input('period'), ['daily', 'monthly'], true)
             ? $request->input('period')
             : 'daily';
-        $date = $request->input('date', Carbon::today()->format('Y-m-d'));
+        $date         = $request->input('date', Carbon::today()->format('Y-m-d'));
         $selectedDate = Carbon::parse($date);
-        $expenses = Expense::query()
-            ->when(
-                $period === 'monthly',
-                fn ($query) => $query->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month),
-                fn ($query) => $query->whereDate('date', $selectedDate->format('Y-m-d'))
-            )
-            ->latest()
-            ->get();
-        
+
+        try {
+            $expenses = Expense::query()
+                ->when(
+                    $period === 'monthly',
+                    fn ($q) => $q->whereYear('date', $selectedDate->year)->whereMonth('date', $selectedDate->month),
+                    fn ($q) => $q->whereDate('date', $selectedDate->format('Y-m-d'))
+                )
+                ->latest()
+                ->get();
+        } catch (\Throwable $e) {
+            return back()->withErrors(['db' => 'Gagal mengekspor data: ' . $e->getMessage()]);
+        }
+
         $headers = [
-            'Content-Type' => 'text/csv',
+            'Content-Type'        => 'text/csv',
             'Content-Disposition' => 'attachment; filename="pengeluaran-'.$period.'-'.$date.'.csv"',
         ];
 
-        $callback = function() use ($expenses) {
+        $callback = function () use ($expenses) {
             $file = fopen('php://output', 'w');
             fputcsv($file, ['Tanggal', 'Kategori', 'Deskripsi', 'Jumlah']);
             foreach ($expenses as $expense) {
