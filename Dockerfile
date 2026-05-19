@@ -22,9 +22,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     libicu-dev \
     libpq-dev \
+    libsqlite3-dev \
     libzip-dev \
     libonig-dev \
-    && docker-php-ext-install pdo_mysql pdo_pgsql mbstring intl zip \
+    && docker-php-ext-install pdo_mysql pdo_pgsql pdo_sqlite mbstring intl zip \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -34,12 +35,14 @@ RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoload
 
 COPY . .
 COPY --from=assets /app/public/build ./public/build
+COPY docker/start.sh /usr/local/bin/kidstation-start
 
 RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
-    && chmod -R ug+rwx storage bootstrap/cache
+    && chmod -R ug+rwx storage bootstrap/cache \
+    && chmod +x /usr/local/bin/kidstation-start
 
 RUN php artisan package:discover --ansi
 
 EXPOSE 8080
 
-CMD ["sh", "-lc", "php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
+CMD ["kidstation-start"]

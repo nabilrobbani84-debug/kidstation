@@ -48,6 +48,11 @@ DB_PASSWORD=${{MySQL.MYSQLPASSWORD}}
 SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
+RUN_MIGRATIONS=false
+
+GOOGLE_CLIENT_ID=ISI_DARI_GOOGLE_CLOUD
+GOOGLE_CLIENT_SECRET=ISI_DARI_GOOGLE_CLOUD
+GOOGLE_REDIRECT_URI=https://your-app-domain.up.railway.app/auth/google/callback
 ```
 
 Catatan:
@@ -63,7 +68,9 @@ php artisan key:generate --show
 
 - Railway akan menjalankan healthcheck ke `/up`
 - Railway akan menjalankan migration sebelum service start lewat `preDeployCommand`
+- Container akan membuat storage link dan cache Laravel production saat start
 - Jika domain publik Railway sudah aktif, ubah `APP_URL` agar sesuai domain final
+- Di Google Cloud Console, tambahkan redirect URI yang sama dengan `GOOGLE_REDIRECT_URI`
 
 ## Import data awal
 

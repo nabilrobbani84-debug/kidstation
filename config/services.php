@@ -1,5 +1,14 @@
 <?php
 
+$appUrl = rtrim((string) env('APP_URL', 'http://localhost'), '/');
+$googleRedirect = env('GOOGLE_REDIRECT_URI');
+
+if (blank($googleRedirect)) {
+    $googleRedirect = $appUrl.'/auth/google/callback';
+} elseif (! preg_match('/^https?:\/\//i', (string) $googleRedirect)) {
+    $googleRedirect = 'https://'.ltrim((string) $googleRedirect, '/');
+}
+
 return [
 
     /*
@@ -25,7 +34,7 @@ return [
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => env('GOOGLE_REDIRECT_URI'),
+        'redirect' => $googleRedirect,
     ],
 
     'ses' => [

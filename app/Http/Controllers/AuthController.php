@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 use Laravel\Socialite\Facades\Socialite;
@@ -76,10 +77,14 @@ class AuthController extends Controller
         $user = User::where('email', $email)->first();
 
         if (! $user) {
-            return redirect()
-                ->route('login')
-                ->withErrors(['google' => 'Email Google tersebut belum terdaftar sebagai admin. Silakan daftar admin dahulu, lalu login kembali.'])
-                ->withInput(['email' => $email]);
+            $user = new User([
+                'name' => $googleUser->getName() ?: $email,
+                'email' => $email,
+                'password' => Str::random(40),
+            ]);
+
+            $user->email_verified_at = now();
+            $user->save();
         }
 
         Auth::login($user, true);

@@ -4,6 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\User as GoogleUser;
+use Mockery;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
@@ -71,5 +74,37 @@ class ExampleTest extends TestCase
         $this->get(route('google.redirect'))
             ->assertRedirect(route('login'))
             ->assertSessionHas('google_unavailable');
+    }
+
+    public function test_google_callback_creates_admin_account_and_logs_in(): void
+    {
+        config([
+            'services.google.client_id' => 'google-client-id',
+            'services.google.client_secret' => 'google-client-secret',
+            'services.google.redirect' => 'http://localhost/auth/google/callback',
+        ]);
+
+        $googleUser = (new GoogleUser)->map([
+            'id' => 'google-user-id',
+            'name' => 'Admin Google',
+            'email' => 'admin-google@example.test',
+        ]);
+
+        $provider = Mockery::mock();
+        $provider->shouldReceive('user')->once()->andReturn($googleUser);
+
+        Socialite::shouldReceive('driver')
+            ->once()
+            ->with('google')
+            ->andReturn($provider);
+
+        $this->get(route('google.callback'))
+            ->assertRedirect(route('dashboard'));
+
+        $this->assertAuthenticated();
+        $this->assertDatabaseHas('users', [
+            'name' => 'Admin Google',
+            'email' => 'admin-google@example.test',
+        ]);
     }
 }
