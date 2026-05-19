@@ -67,7 +67,8 @@
                 @if(request()->filled('q'))
                     <input type="hidden" name="q" value="{{ request('q') }}">
                 @endif
-                <select name="chart_range" onchange="this.form.submit()" class="w-full sm:w-auto border border-gray-300 rounded-lg text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select name="chart_range" onchange="this.form.submit()" class="w-full sm:w-auto border border-gray-300 rounded-xl text-base font-medium px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
+                    <option value="1" @selected($chartRange === 1)>Harian</option>
                     <option value="7" @selected($chartRange === 7)>7 Hari Terakhir</option>
                     <option value="30" @selected($chartRange === 30)>30 Hari Terakhir</option>
                 </select>
