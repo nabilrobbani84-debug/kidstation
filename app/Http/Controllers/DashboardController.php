@@ -12,8 +12,8 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $today = Carbon::today();
-        $chartRange = (int) $request->input('chart_range', 7);
-        $chartRange = in_array($chartRange, [1, 7, 30], true) ? $chartRange : 7;
+        $chartRange = (int) $request->input('chart_range', 30);
+        $chartRange = in_array($chartRange, [1, 7, 30], true) ? $chartRange : 30;
         
         $totalSales = 0;
         $totalExpenses = 0;
