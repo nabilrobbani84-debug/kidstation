@@ -102,8 +102,13 @@
                     </div>
                     <div class="min-w-0 flex-1 overflow-hidden">
                         <p class="text-indigo-200 text-xs font-medium">Logged in as</p>
-                        <p class="font-bold text-sm truncate text-white">{{ auth()->user()->name }}</p>
-                        <p class="text-xs text-indigo-200/80 truncate">{{ auth()->user()->email }}</p>
+                        @php
+                            $adminUser = auth()->user();
+                            $adminName = $adminUser ? $adminUser->name : session('google_admin.name', 'Admin');
+                            $adminEmail = $adminUser ? $adminUser->email : session('google_admin.email', '');
+                        @endphp
+                        <p class="font-bold text-sm truncate text-white">{{ $adminName }}</p>
+                        <p class="text-xs text-indigo-200/80 truncate">{{ $adminEmail }}</p>
                     </div>
                     <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Logout dari akun admin?')">
                         @csrf

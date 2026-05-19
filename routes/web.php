@@ -13,14 +13,17 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('login', [AuthController::class, 'login'])->name('login.store');
     Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('google.redirect');
-    Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('google.callback');
     Route::get('register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('register', [AuthController::class, 'register'])->name('register.store');
 });
 
-Route::post('logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+// Google callback must be OUTSIDE the 'guest' middleware so that session state
+// mismatches on serverless (Vercel) don't cause a redirect loop.
+Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('google.callback');
 
-Route::middleware('auth')->group(function () {
+Route::post('logout', [AuthController::class, 'logout'])->middleware('admin.auth')->name('logout');
+
+Route::middleware('admin.auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('products', ProductController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('sales', SaleController::class)->only(['index', 'store', 'destroy']);

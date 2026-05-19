@@ -5,6 +5,16 @@
 @section('content')
 @php \Carbon\Carbon::setLocale('id'); @endphp
 
+@if(isset($dbError) && $dbError)
+    <div class="mb-8 rounded-2xl border border-rose-200 bg-rose-50 p-4 flex gap-4 items-start text-rose-800 shadow-sm">
+        <i class="fa-solid fa-triangle-exclamation mt-1 text-xl text-rose-500"></i>
+        <div>
+            <h3 class="font-bold text-lg">Koneksi Database Gagal</h3>
+            <p class="text-sm mt-1">{{ $dbError }}</p>
+        </div>
+    </div>
+@endif
+
 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
     <!-- Card 1: Penjualan -->
     <div class="bg-gradient-to-br from-emerald-400 to-teal-500 text-white p-6 rounded-3xl shadow-xl shadow-emerald-500/20 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">

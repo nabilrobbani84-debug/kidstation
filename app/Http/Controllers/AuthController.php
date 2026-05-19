@@ -14,8 +14,12 @@ use Throwable;
 
 class AuthController extends Controller
 {
-    public function showLogin(): View
+    public function showLogin(): View|RedirectResponse
     {
+        if (Auth::check() || session()->has('google_admin.email')) {
+            return redirect()->route('dashboard');
+        }
+
         return view('auth.login', [
             'googleLoginConfigured' => $this->googleLoginIsConfigured(),
         ]);
@@ -52,18 +56,35 @@ class AuthController extends Controller
 
     public function handleGoogleCallback(Request $request): RedirectResponse
     {
+        // Already logged in — go straight to dashboard
+        if (Auth::check() || $request->session()->has('google_admin.email')) {
+            return redirect()->route('dashboard');
+        }
+
         if (! $this->googleLoginIsConfigured()) {
             return redirect()
                 ->route('login')
                 ->with('google_unavailable', 'Login Google belum aktif. Silakan login menggunakan email dan password admin.');
         }
 
+        // Use stateless() because Vercel serverless can't guarantee session
+        // continuity between the redirect and callback requests.
         try {
-            $googleUser = Socialite::driver('google')->user();
-        } catch (Throwable) {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+        } catch (\Throwable $e) {
+            $msg = $e->getMessage();
+
+            // State mismatch / invalid_grant usually means the user hit
+            // the callback URL directly or the code already expired.
+            if (str_contains($msg, 'state') || str_contains($msg, 'invalid_grant')) {
+                return redirect()
+                    ->route('login')
+                    ->withErrors(['google' => 'Sesi login Google kadaluarsa atau tidak valid. Silakan coba lagi.']);
+            }
+
             return redirect()
                 ->route('login')
-                ->withErrors(['google' => 'Login Google gagal. Silakan coba lagi.']);
+                ->withErrors(['google' => 'Login Google gagal: ' . $msg]);
         }
 
         $email = $googleUser->getEmail();
@@ -74,20 +95,29 @@ class AuthController extends Controller
                 ->withErrors(['google' => 'Akun Google tidak mengirimkan alamat email. Gunakan akun Google lain.']);
         }
 
-        $user = User::where('email', $email)->first();
+        try {
+            $user = User::where('email', $email)->first();
 
-        if (! $user) {
-            $user = new User([
-                'name' => $googleUser->getName() ?: $email,
+            if (! $user) {
+                $user = new User([
+                    'name'     => $googleUser->getName() ?: $email,
+                    'email'    => $email,
+                    'password' => Str::random(40),
+                ]);
+
+                $user->email_verified_at = now();
+                $user->save();
+            }
+
+            Auth::login($user, true);
+        } catch (\Throwable $e) {
+            // Database unavailable (e.g. Vercel without DB configured).
+            // Store identity in session so the app still works read-only.
+            $request->session()->put('google_admin', [
+                'name'  => $googleUser->getName() ?: $email,
                 'email' => $email,
-                'password' => Str::random(40),
             ]);
-
-            $user->email_verified_at = now();
-            $user->save();
         }
-
-        Auth::login($user, true);
 
         $request->session()->regenerate();
 
@@ -118,6 +148,7 @@ class AuthController extends Controller
     {
         Auth::logout();
 
+        $request->session()->forget('google_admin');
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
