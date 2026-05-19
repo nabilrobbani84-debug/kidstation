@@ -126,8 +126,12 @@ class AuthController extends Controller
 
     private function googleLoginIsConfigured(): bool
     {
-        return filled(config('services.google.client_id'))
-            && filled(config('services.google.client_secret'))
-            && filled(config('services.google.redirect'));
+        try {
+            return filled(config('services.google.client_id'))
+                && filled(config('services.google.client_secret'))
+                && filled(config('services.google.redirect'));
+        } catch (Throwable) {
+            return false;
+        }
     }
 }
