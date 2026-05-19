@@ -5,7 +5,7 @@ Project ini sudah memiliki konfigurasi `vercel.json` untuk menjalankan Laravel m
 ## URL Production
 
 ```text
-https://kidstation.vercel.app
+https://kidstation-laravel.vercel.app
 ```
 
 ## Environment Variables
@@ -14,14 +14,14 @@ Set environment berikut di Vercel Project Settings:
 
 ```env
 APP_KEY=base64:GENERATE_DI_LOCAL_DENGAN_PHP_ARTISAN_KEY_GENERATE_SHOW
-APP_URL=https://kidstation.vercel.app
+APP_URL=https://kidstation-laravel.vercel.app
 
 DB_CONNECTION=pgsql
 DB_URL=ISI_CONNECTION_STRING_POSTGRES
 
 GOOGLE_CLIENT_ID=ISI_DARI_GOOGLE_CLOUD
 GOOGLE_CLIENT_SECRET=ISI_DARI_GOOGLE_CLOUD
-GOOGLE_REDIRECT_URI=https://kidstation.vercel.app/auth/google/callback
+GOOGLE_REDIRECT_URI=https://kidstation-laravel.vercel.app/auth/google/callback
 ```
 
 `GOOGLE_REDIRECT_URI` boleh dikosongkan jika `APP_URL` sudah benar, karena aplikasi akan memakai fallback:
@@ -37,7 +37,7 @@ GOOGLE_REDIRECT_URI=https://kidstation.vercel.app/auth/google/callback
 Di OAuth Client Google, tambahkan Authorized redirect URI:
 
 ```text
-https://kidstation.vercel.app/auth/google/callback
+https://kidstation-laravel.vercel.app/auth/google/callback
 ```
 
 Untuk testing lokal, tambahkan juga:
