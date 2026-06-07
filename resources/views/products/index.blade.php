@@ -40,10 +40,9 @@
                 <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Kategori</label>
                 <select name="category" class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-shadow bg-white">
                     <option value="">Pilih Kategori</option>
-                    <option value="Susu Pertumbuhan">Susu Pertumbuhan</option>
-                    <option value="Popok Bayi">Popok Bayi</option>
-                    <option value="Perlengkapan Bayi">Perlengkapan Bayi</option>
-                    <option value="Pakaian Bayi">Pakaian Bayi</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat }}">{{ $cat }}</option>
+                    @endforeach
                 </select>
             </div>
             <div>
@@ -61,11 +60,12 @@
 <!-- Daftar Produk -->
 <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
     <div class="flex flex-col gap-4 mb-6 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
             <div class="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
                 <i class="fa-solid fa-box text-xs"></i>
             </div>
             <h3 class="font-bold text-gray-800">Daftar Produk</h3>
+            <span class="bg-purple-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">{{ $products->count() }}</span>
         </div>
         <form action="{{ route('products.index') }}" method="GET" class="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
             <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari produk/kategori..." class="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 lg:w-64">
@@ -103,10 +103,9 @@
                 <div>
                     <label class="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">Kategori</label>
                     <select name="category" class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        <option value="Susu Pertumbuhan" @selected($product->category === 'Susu Pertumbuhan')>Susu Pertumbuhan</option>
-                        <option value="Popok Bayi" @selected($product->category === 'Popok Bayi')>Popok Bayi</option>
-                        <option value="Perlengkapan Bayi" @selected($product->category === 'Perlengkapan Bayi')>Perlengkapan Bayi</option>
-                        <option value="Pakaian Bayi" @selected($product->category === 'Pakaian Bayi')>Pakaian Bayi</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat }}" @selected($product->category === $cat)>{{ $cat }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div>

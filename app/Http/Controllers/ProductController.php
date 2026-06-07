@@ -9,8 +9,9 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = collect();
-        $dbError  = null;
+        $products   = collect();
+        $categories = collect();
+        $dbError    = null;
 
         try {
             $products = Product::query()
@@ -23,11 +24,24 @@ class ProductController extends Controller
                 })
                 ->latest()
                 ->get();
+
+            // Ambil semua kategori unik dari DB + kategori default
+            $dbCategories = Product::select('category')
+                ->distinct()
+                ->orderBy('category')
+                ->pluck('category');
+
+            $defaultCategories = collect([
+                'Susu', 'Susu Pertumbuhan', 'Popok Bayi',
+                'Perlengkapan Bayi', 'Pakaian Bayi', 'Makanan Bayi', 'Lainnya',
+            ]);
+
+            $categories = $defaultCategories->merge($dbCategories)->unique()->sort()->values();
         } catch (\Throwable $e) {
             $dbError = 'Tidak dapat terhubung ke database: ' . $e->getMessage();
         }
 
-        return view('products.index', compact('products', 'dbError'));
+        return view('products.index', compact('products', 'categories', 'dbError'));
     }
 
     public function store(Request $request)
