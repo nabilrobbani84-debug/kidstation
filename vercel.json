@@ -32,7 +32,7 @@
         "DB_DATABASE": "httc6362_kidstation",
         "DB_USERNAME": "httc6362_kidstation",
         "DB_PASSWORD": "kidstation123",
-        "SESSION_DRIVER": "cookie",
+        "SESSION_DRIVER": "database",
         "CACHE_STORE": "array",
         "QUEUE_CONNECTION": "sync",
         "VIEW_COMPILED_PATH": "/tmp/views",
