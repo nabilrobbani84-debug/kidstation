@@ -17,7 +17,8 @@
     ],
     "env": {
         "APP_ENV": "production",
-        "APP_DEBUG": "false",
+        "APP_DEBUG": "true",
+        "APP_KEY": "base64:pVdIDhVZ5F4clFHbvjviq73+9Y66S5SsYuQbTmR1cyI=",
         "APP_URL": "https://kidstation-laravel.vercel.app",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
