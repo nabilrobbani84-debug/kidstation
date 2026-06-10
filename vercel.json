@@ -29,7 +29,7 @@
         "LOG_LEVEL": "info",
         "DATABASE_URL": "",
         "DB_CONNECTION": "mysql",
-        "DB_HOST": "202.10.43.90",
+        "DB_HOST": "httpskidstation.vercel.app",
         "DB_PORT": "3306",
         "DB_DATABASE": "httc6362_kidstation",
         "DB_USERNAME": "httc6362_kidstation",
