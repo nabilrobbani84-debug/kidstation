@@ -19,7 +19,7 @@
         "APP_ENV": "production",
         "APP_DEBUG": "true",
         "APP_KEY": "base64:pVdIDhVZ5F4clFHbvjviq73+9Y66S5SsYuQbTmR1cyI=",
-        "APP_URL": "https://kidstation-laravel.vercel.app",
+        "APP_URL": "https://kidstation.my.id",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
@@ -39,7 +39,7 @@
         "QUEUE_CONNECTION": "sync",
         "VIEW_COMPILED_PATH": "/tmp/views",
         "GOOGLE_CLIENT_ID": "583081468666-smgkphpovc0262srb4r8tmcaclkh80m0.apps.googleusercontent.com",
-        "GOOGLE_REDIRECT_URI": "https://kidstation-laravel.vercel.app/auth/google/callback"
+        "GOOGLE_REDIRECT_URI": "https://kidstation.my.id/auth/google/callback"
     },
     "installCommand": "npm ci",
     "buildCommand": "npm run build"
