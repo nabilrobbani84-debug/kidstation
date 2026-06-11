@@ -38,7 +38,7 @@
         "CACHE_STORE": "array",
         "QUEUE_CONNECTION": "sync",
         "VIEW_COMPILED_PATH": "/tmp/views",
-        "GOOGLE_CLIENT_ID": "583081468666-smgkphpovc0262srb4r8tmcaclkh80m0.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_ID": "568260052320-vddbdcidpb9l7gnj1h4khh3rrdk797n1.apps.googleusercontent.com",
         "GOOGLE_REDIRECT_URI": "https://kidstation.my.id/auth/google/callback"
     },
     "installCommand": "npm ci",
